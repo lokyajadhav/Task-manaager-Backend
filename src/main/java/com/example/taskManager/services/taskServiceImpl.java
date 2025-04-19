@@ -69,8 +69,22 @@ public class taskServiceImpl implements taskService {
 	public void assignTask(Long taskId, Long userId) {
 		try
 		{
-			  Optional<Tasks> optionalTask = tasksRepository.findById(taskId);
+			  
 			  Optional<Users> optionalUser = userRepository.findById(userId);
+			  Users user = optionalUser.get();
+			  List<Tasks> taskAssigned=user.getTasks();
+				List<Tasks> CurrentTasks=	taskAssigned.stream().filter(task->{
+					return (task.getStatus().equals(TaskStatus.NOT_STARTED)|| task.getStatus().equals(TaskStatus.IN_PROGRESS));
+					 
+				}).toList();
+				if(CurrentTasks.size()>=3)
+				{
+					throw new RuntimeException("this developer has already assgined 3 task , more task cannot be assgined ");
+				}
+				Optional<Tasks> optionalTask = tasksRepository.findById(taskId);
+				
+				
+				
 		        if (optionalTask.isEmpty()) {
 		            throw new RuntimeException("No task present with task ID: " + taskId);
 		        }
@@ -79,11 +93,13 @@ public class taskServiceImpl implements taskService {
 		        }
 
 		       Tasks task = optionalTask.get();
-		       Users user = optionalUser.get();
+		       
+		       
 			List<Tasks> taskToAssign=new ArrayList<>();
 			taskToAssign.add(task);
 			task.setUser(user);
 			user.setTasks(taskToAssign);
+			
 			tasksRepository.save(task);
 			userRepository.save(user);
 			this.updateTaskAStatus(taskId, "not_started");
