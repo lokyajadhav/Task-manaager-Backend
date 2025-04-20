@@ -6,17 +6,20 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.taskManager.models.TaskDTO;
 import com.example.taskManager.models.Tasks;
 import com.example.taskManager.models.Users;
 import com.example.taskManager.services.taskService;
 
 @RestController
+@CrossOrigin(origins = "*")
 public class TaskController {
 	
 	final taskService taskService;
@@ -39,6 +42,23 @@ public class TaskController {
 			taskService.createTask(task);
 			response.put("response", "Task has been create successfully");
 			return ResponseEntity.status(HttpStatus.OK).body(response);
+		}
+		catch(Exception e){
+			
+			response.put("response", e.getLocalizedMessage());
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+			
+		}
+	}
+	@PostMapping("/login")
+	ResponseEntity<Object> login(@RequestBody Users users)
+	{
+		try
+		{
+			System.err.println(users.getEmail());
+			Users user=taskService.login(users.getEmail(), users.getPassword(),users.getDesignation());
+			
+			return ResponseEntity.status(HttpStatus.OK).body(user);
 		}
 		catch(Exception e){
 			
@@ -108,7 +128,24 @@ public class TaskController {
 		try
 		{
 			
-			List<Tasks> allTasks= taskService.getAllTasks();
+			List<TaskDTO> allTasks= taskService.getAllTasks();
+			
+			return ResponseEntity.status(HttpStatus.OK).body(allTasks);
+		}
+		catch(Exception e){
+			
+			response.put("response", e.getLocalizedMessage());
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+			
+		}
+	}
+	@GetMapping("/get-all-users")
+	ResponseEntity<Object> getAllUsers()
+	{
+		try
+		{
+			
+			List<Users> allTasks= taskService.getAllUsers();
 			
 			return ResponseEntity.status(HttpStatus.OK).body(allTasks);
 		}

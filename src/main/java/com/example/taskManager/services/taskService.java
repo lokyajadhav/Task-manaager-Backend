@@ -2,6 +2,7 @@ package com.example.taskManager.services;
 
 import java.util.List;
 
+import com.example.taskManager.models.TaskDTO;
 import com.example.taskManager.models.Tasks;
 import com.example.taskManager.models.Users;
 
@@ -13,7 +14,7 @@ public interface taskService {
 
 	void assignTask(Long taskId, Long userId);
 
-	List<Tasks> getAllTasks();
+	List<TaskDTO> getAllTasks();
 
 	List<Tasks> getDeveloperTasks(Long developerId);
 
@@ -22,5 +23,9 @@ public interface taskService {
 	void updateTaskAStatus(Long taskId, String status);
 
 	void createUsers();
+
+	Users login(String email, String password,String designation);
+
+	List<Users> getAllUsers();
 
 }

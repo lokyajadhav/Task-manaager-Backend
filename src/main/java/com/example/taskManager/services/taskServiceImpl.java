@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.taskManager.models.TaskDTO;
 import com.example.taskManager.models.TaskStatus;
 import com.example.taskManager.models.Tasks;
 import com.example.taskManager.models.Users;
@@ -116,12 +117,12 @@ public class taskServiceImpl implements taskService {
 	}
 
 	@Override
-	public List<Tasks> getAllTasks() {
+	public List<TaskDTO> getAllTasks() {
 		try
 		{
 			
 			
-			return tasksRepository.findAll();
+			return tasksRepository.fetchAllTasksWithUserInfo();
 			
 		}
 		catch(Exception e)
@@ -153,12 +154,15 @@ public class taskServiceImpl implements taskService {
 			List<Users> users=  userRepository.findAll();
 			for( Users user : users)
 			{
-				List<Tasks> taskAssigned=user.getTasks();
-				List<Tasks> CurrentTasks=	taskAssigned.stream().filter(task->{
-					return (task.getStatus().equals(TaskStatus.NOT_STARTED)|| task.getStatus().equals(TaskStatus.IN_PROGRESS));
-					 
-				}).toList();
-				if(CurrentTasks.size()<3) availableDevelopers.add(user);
+				if(!user.getDesignation().equalsIgnoreCase("Manager"))
+{
+	List<Tasks> taskAssigned=user.getTasks();
+	List<Tasks> CurrentTasks=	taskAssigned.stream().filter(task->{
+		return (task.getStatus().equals(TaskStatus.NOT_STARTED)|| task.getStatus().equals(TaskStatus.IN_PROGRESS));
+		 
+	}).toList();
+	if(CurrentTasks.size()<3) availableDevelopers.add(user);
+}
 			}
 			return availableDevelopers;
 		}
@@ -215,6 +219,33 @@ public class taskServiceImpl implements taskService {
 		}
 		
 		
+	}
+	@Override
+	public Users login(String email, String password, String designation) {
+		
+		 try {
+		        Optional<Users> users = userRepository.findByEmailAndPasswordAndDesignation(email, password,designation);
+
+		        if (users.isEmpty()) {
+		            throw new RuntimeException("Invalid credentials");
+		        }
+
+		       
+		        return users.get();
+
+		    } catch (Exception e) {
+		        throw new RuntimeException("Invalid credentials: " + e.getMessage(), e);
+		    }
+	}
+	@Override
+	public List<Users> getAllUsers() {
+		try
+		{
+			return userRepository.findAll();
+		}
+		catch (Exception e) {
+	        throw new RuntimeException("Failed tofetch all the users: " + e.getMessage(), e);
+	    }
 	}
 
 }
